@@ -44,12 +44,10 @@ def parse_input(file):
         return books[int(b)].score
 
     libraries = []
-    start_index = 2
     i = 0
-    while(i < (n_libraries * 2)):
-        lib_index = i + start_index
+    lib_index = 2
+    while(i < n_libraries):
         libr_descr = get_tokens(lines[lib_index])
-        lib_id = i
         lib_n_books = int(libr_descr[0])
         sign_up_time = int(libr_descr[1])
         books_per_day = int(libr_descr[2])
@@ -57,9 +55,10 @@ def parse_input(file):
         lib_books = get_tokens(lines[lib_index + 1])
         sorted_l_books = sorted(lib_books, key=book_sort_key, reverse=True)
         libraries.append(Library(
-            lib_id, sign_up_time, sorted_l_books, books_per_day))
+            i, sign_up_time, sorted_l_books, books_per_day))
 
-        i += 2
+        i += 1
+        lib_index += 2
 
 
     return Problem(libraries, books, n_days)
