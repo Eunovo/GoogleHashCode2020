@@ -13,7 +13,7 @@ def main():
     global input_files
     global output_dir
 
-    for file in input_files[0:1]:
+    for file in input_files[1:3]:
         problem = parse_input(file)
         print("Parsed ", file)
         problem_solver = ProblemSolver(problem)
@@ -41,6 +41,9 @@ def parse_input(file):
         raise ValueError('Number of books do not match')
     books = [Book(t, int(second_line[t])) for t in range(n_books)]
 
+    def book_sort_key(b):
+        return books[int(b)].score
+
     libraries = []
     start_index = 2
     i = 0
@@ -53,8 +56,9 @@ def parse_input(file):
         books_per_day = int(libr_descr[2])
 
         lib_books = get_tokens(lines[lib_index + 1])
+        sorted_l_books = sorted(lib_books, key=book_sort_key, reverse=True)
         libraries.append(Library(
-            lib_id, sign_up_time, lib_books, books_per_day))
+            lib_id, sign_up_time, sorted_l_books, books_per_day))
 
         i += 2
 
@@ -79,15 +83,30 @@ class ProblemSolver:
         sorted_libraries = sorted(self.problem.libraries, key=self.sort_key)
         # print([l.sign_up_time for l in sorted_libraries])
         signed_libraries = []
+        score = 0
+        book_scores = [b.score for b in self.problem.books]
         day_index = 0
         while(day_index < self.problem.n_days):
             new_lib = self.handle_signup(day_index, sorted_libraries)
             if (new_lib != None):
                 signed_libraries.append(new_lib)
-            
+        
+            for lib in signed_libraries:
+                book_count = 0
+                for b in lib.books:
+                    if (book_count >= lib.books_per_day):
+                        break
 
+                    bid = int(b)
+                    if (book_scores[bid] == 0):
+                        continue
 
+                    score += book_scores[bid]
+                    book_scores[bid] = 0
+                    book_count += 1
             day_index += 1
+
+        print(score)
 
     def sort_key(self, library):
         return library.sign_up_time
@@ -130,8 +149,8 @@ class Library:
         pass
 
 class Book:
-    def __init__(self, id, score):
-        self.id = id
+    def __init__(self, bid, score):
+        self.id = bid
         self.score = score
 
 if __name__ == "__main__":
