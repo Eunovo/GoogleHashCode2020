@@ -13,7 +13,7 @@ def main():
     global input_files
     global output_dir
 
-    for file in input_files[1:3]:
+    for file in input_files:
         problem = parse_input(file)
         print("Parsed ", file)
         problem_solver = ProblemSolver(problem)
@@ -81,55 +81,31 @@ class ProblemSolver:
 
     def solve(self):
         sorted_libraries = sorted(self.problem.libraries, key=self.sort_key)
-        # print([l.sign_up_time for l in sorted_libraries])
-        signed_libraries = []
-        score = 0
         book_scores = [b.score for b in self.problem.books]
+        score = 0
         day_index = 0
-        while(day_index < self.problem.n_days):
-            new_lib = self.handle_signup(day_index, sorted_libraries)
-            if (new_lib != None):
-                signed_libraries.append(new_lib)
-        
-            for lib in signed_libraries:
-                book_count = 0
-                for b in lib.books:
-                    if (book_count >= lib.books_per_day):
-                        break
+        for library in sorted_libraries:
+            day_index += library.sign_up_time
+            if (day_index >= self.problem.n_days):
+                break
+            days_left = (self.problem.n_days - 1) - day_index
+            n_books_possible = days_left * library.books_per_day
+            book_count = 0
+            for b in library.books:
+                if (book_count >= n_books_possible):
+                    break
+                bid = int(b)
+                if (book_scores[bid] == 0):
+                    continue
 
-                    bid = int(b)
-                    if (book_scores[bid] == 0):
-                        continue
-
-                    score += book_scores[bid]
-                    book_scores[bid] = 0
-                    book_count += 1
-            day_index += 1
+                score += book_scores[bid]
+                book_scores[bid] = 0
+                book_count += 1
 
         print(score)
 
     def sort_key(self, library):
         return library.sign_up_time
-
-    def handle_signup(self, day, libraries):
-        def start_next():
-            next_index = self.last_signed + 1
-            if (next_index >= len(libraries)):
-                return
-            self.currently_signing = next_index
-            self.started_on = day
-
-        if (self.currently_signing == -1):
-            start_next()
-            return None
-
-        current_lib = libraries[self.currently_signing]
-        if (day - self.started_on == current_lib.sign_up_time):
-            self.last_signed = self.currently_signing
-            self.currently_signing = -1
-            start_next()
-            return current_lib
-        return None
         
 class Problem:
     def __init__(self, libraries, books, n_days):
