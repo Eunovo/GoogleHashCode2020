@@ -109,7 +109,8 @@ class ProblemSolver:
                 score += book_scores[bid]
                 book_scores[bid] = 0
                 book_count += 1
-            solution.append((library, books))
+            if (book_count > 0):
+                solution.append((library, books))
 
         return (score, solution)
 
