@@ -15,15 +15,14 @@ def main():
 
     for file in input_files:
         problem = parse_input(file)
-        print("Parsed ", file)
         problem_solver = ProblemSolver(problem)
-        problem_solver.solve()
-        # output_file = output_dir + "/" \
-        #     + file.split("/")[-1].split(".")[0] + ".out"
-        # write_output(solution, output_file)
-        # print("Solved", file, "Scored", score, 
-        #     "Saved to", output_file)
-        # print()
+        (score, solution) = problem_solver.solve()
+        output_file = output_dir + "/" \
+            + file.split("/")[-1].split(".")[0] + ".out"
+        write_output(solution, output_file)
+        print("Solved", file, "Scored", score, 
+            "Saved to", output_file)
+        print()
 
 def parse_input(file):
     file_obj = open(file, "r")
@@ -70,7 +69,14 @@ def get_tokens(line):
     return line.split('\n')[0].split(" ")
 
 def write_output(solution, output_file):
-    pass
+    file_obj = open(output_file, "w")
+    file_obj.write(str(len(solution)) + "\n")
+    for s in solution:
+        (library, books) = s
+        file_obj.write(str(library.l_id) + " " + str(len(books)) + "\n")
+        file_obj.write(" ".join([str(b) for b in books]) + "\n")
+
+    file_obj.close()
 
 class ProblemSolver:
     def __init__(self, problem):
@@ -83,6 +89,7 @@ class ProblemSolver:
         sorted_libraries = sorted(self.problem.libraries, key=self.sort_key)
         book_scores = [b.score for b in self.problem.books]
         score = 0
+        solution = []
         day_index = 0
         for library in sorted_libraries:
             day_index += library.sign_up_time
@@ -91,6 +98,7 @@ class ProblemSolver:
             days_left = (self.problem.n_days - 1) - day_index
             n_books_possible = days_left * library.books_per_day
             book_count = 0
+            books = []
             for b in library.books:
                 if (book_count >= n_books_possible):
                     break
@@ -98,11 +106,13 @@ class ProblemSolver:
                 if (book_scores[bid] == 0):
                     continue
 
+                books.append(bid)
                 score += book_scores[bid]
                 book_scores[bid] = 0
                 book_count += 1
+            solution.append((library, books))
 
-        print(score)
+        return (score, solution)
 
     def sort_key(self, library):
         return library.sign_up_time
