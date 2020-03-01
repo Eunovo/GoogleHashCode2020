@@ -94,7 +94,7 @@ class ProblemSolver:
             day_index += library.sign_up_time
             if (day_index >= self.problem.n_days):
                 break
-            days_left = (self.problem.n_days - 1) - day_index
+            days_left = self.problem.n_days - day_index
             n_books_possible = days_left * library.books_per_day
             book_count = 0
             books = []
@@ -111,7 +111,6 @@ class ProblemSolver:
                 book_count += 1
             if (book_count > 0):
                 solution.append((library, books))
-
         return (score, solution)
 
     def sort_key(self, library):
