@@ -114,7 +114,7 @@ class ProblemSolver:
         return (score, solution)
 
     def sort_key(self, library):
-        return library.sign_up_time
+        return library.sign_up_time / len(library.books)
         
 class Problem:
     def __init__(self, libraries, books, n_days):
